@@ -142,7 +142,7 @@ let dump_config () =
 
 
 let on_message e =
-  let data = Brr_io.Message.Ev.data e |> Jstr.to_string in
+  let data = Brr_io.Message.Ev.data e in
   Console.(log ["Received message:";data]);
   let source = Msource.make data in
   let res =
