@@ -21,3 +21,5 @@ dune-workspace
 
 # merlin js specific
 *.bc*
+node_modules
+index.js
