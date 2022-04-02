@@ -1,0 +1,5 @@
+(executable
+ (name merlin_client)
+ (promote (until-clean))
+ (modes js)
+ (libraries brr))

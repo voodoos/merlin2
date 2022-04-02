@@ -1,0 +1,2 @@
+- Brr: when in dev mode no dead-code elimintation: document undefined in worker
+- Brr: defer is a boolean attribute

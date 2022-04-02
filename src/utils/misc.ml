@@ -747,10 +747,7 @@ module Color = struct
       ()
 end
 
-let time_spent () =
-  let open Unix in
-  let t = times () in
-  ((t.tms_utime +. t.tms_stime +. t.tms_cutime +. t.tms_cstime) *. 1000.0)
+let time_spent () = 0.
 
 let normalise_eol s =
   let b = Buffer.create 80 in

@@ -18,4 +18,7 @@ preprocess:
 promote:
 	dune promote
 
-.PHONY: all build dev clean test promote
+js:
+	dune build --watch --profile=release ./merlinjs/merlin_worker.bc.js ./merlinjs/client/merlin_client.bc.js
+
+.PHONY: all js build dev clean test promote

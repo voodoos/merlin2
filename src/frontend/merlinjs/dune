@@ -1,7 +1,0 @@
-(executable
- (name merlin_js)
- (modes js)
- (libraries
-  merlin_kernel
-  merlin_analysis
-  merlin_utils))
