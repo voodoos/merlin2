@@ -7,13 +7,31 @@
   <script type="text/javascript" defer src="client/merlin_client.bc.js"></script>
   <script type="text/javascript" defer src="index.js"></script>
   <title>Merlin the web</title>
+  <style>
+    body {
+      background-color: #4c4956;
+    }
+
+    #editor {
+      width: 30%;
+      height: 500px;
+      border: 1px solid #ddd;
+      border-radius: 0.5rem;
+      overflow: hidden;
+      margin: auto;
+      margin-top: 2rem;
+      background-color: white;
+    }
+
+    #editor .cm-editor {
+      height: 100%;
+    }
+  </style>
 </head>
 
 <body>
   <noscript>Sorry, you need to enable JavaScript to see this page.</noscript>
   <div id="editor"></div>
-  <input type="text" id="source-input" size="26" />
-  <div id="completion-results"></div>
 </body>
 
 </html>

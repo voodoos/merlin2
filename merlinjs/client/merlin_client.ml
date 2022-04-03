@@ -3,16 +3,6 @@ module Worker = Brr_webworkers.Worker
 
 
 let p_innerHTML = El.Prop.jstr (Jstr.of_string "innerHTML")
-let text_input =
-  Document.find_el_by_id G.document @@ Jstr.of_string "source-input"
-  |> Option.get
-
-let get_input_val () =
-  El.(prop Prop.value text_input)
-
-let results_div =
-  Document.find_el_by_id G.document @@ Jstr.of_string "completion-results"
-  |> Option.get
 
 (* When a query is sent to the Worker we keep the Future result in an indexed
 table so that the on_message function will be able to determine the Future when
