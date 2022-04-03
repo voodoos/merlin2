@@ -34,9 +34,7 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - macos-latest
           - ubuntu-latest
-          - windows-latest
         ocaml-compiler:
           - 4.13.x
     # The type of runner that the job will run on
@@ -65,3 +63,8 @@ jobs:
 
       - name: Build and test in release mode
         run: opam exec -- make js
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./merlinjs
