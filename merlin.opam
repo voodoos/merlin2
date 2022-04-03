@@ -20,8 +20,8 @@ depends: [
   "menhir" {dev}
   "menhirLib" {dev}
   "menhirSdk" {dev}
-  "js_of_ocaml" {>= 4.0.0}
-  "brr" {>= 0.0.3}
+  "js_of_ocaml" {>= "4.0.0"}
+  "brr" {>= "0.0.3"}
 ]
 synopsis:
   "Editor helper, provides completion, typing and source browsing in Vim and Emacs"
