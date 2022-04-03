@@ -2,4 +2,8 @@
  (name merlin_client)
  (promote (until-clean))
  (modes js)
- (libraries brr))
+ (js_of_ocaml
+  (flags (:standard --source-map-inline)))
+ (libraries
+  brr
+  query_protocol))

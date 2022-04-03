@@ -23,9 +23,8 @@ let dispatch source query  =
   let pipeline = make_pipeline source in
   Mpipeline.with_pipeline pipeline @@ fun () ->
     Query_commands.dispatch pipeline query
-    (* match Query_commands.dispatch pipeline query with
-    | resp -> Query_json.json_of_response query resp
-      |> Json.pretty_to_string *)
+    |> Query_json.json_of_response query
+    |> Json.to_string
 
 let _type_enclosing source position =
   let query = Query_protocol.Type_enclosing (None, position, None) in
@@ -33,7 +32,7 @@ let _type_enclosing source position =
 
 
 module Completion = struct
-   (* Prefixing code from ocaml-lsp-server *)
+  (* Prefixing code from ocaml-lsp-server *)
   let rfindi =
     let rec loop s ~f i =
       if i < 0 then
@@ -119,20 +118,23 @@ module Completion = struct
 
 let at_pos source position =
   let prefix = prefix_of_position source position in
+  let `Offset to_ = Msource.get_offset source position in
+  let from =
+    to_ - String.length (prefix_of_position ~short_path:true source position)
+  in
+
   Console.(log ["Prefix:";prefix]);
   if prefix = "" then
     None
   else
     let query = Query_protocol.Complete_prefix (prefix, position, [], true, true)
     in
-    Some (dispatch source query)
+    Some (from, to_, dispatch source query)
 end
 
 let dump () =
   let query = Query_protocol.Dump [`String "paths"] in
   dispatch (Msource.make "") query
-  |> Query_json.json_of_response query
-  |> Json.pretty_to_string
 
 let dump_config () =
   let pipeline = make_pipeline (Msource.make "") in
@@ -140,17 +142,24 @@ let dump_config () =
     Mconfig.dump (Mpipeline.final_config pipeline)
     |> Json.pretty_to_string
 
-
 let on_message e =
-  let data = Brr_io.Message.Ev.data e in
+  let (data, cursor_offset) = Brr_io.Message.Ev.data e in
   Console.(log ["Received message:";data]);
   let source = Msource.make data in
+  let position = `Offset cursor_offset in
   let res =
-    match Completion.at_pos source `End with
-    | None -> []
-    | Some compl ->
-      List.map ~f:(fun raw_entry ->
-        raw_entry.Query_protocol.Compl.name) compl.entries
+    match Completion.at_pos source position with
+    | None ->
+      Jv.obj [| ("from", Jv.of_int 0); ("to", Jv.of_int 0); ("entries", Jv.Jarray.create 0) |]
+    | Some (from, to_, compl) ->
+      let entries = Brr.Json.decode @@ Jstr.of_string compl
+        |> Stdlib.Result.get_ok in
+      Jv.obj [| ("from", Jv.of_int from); ("to", Jv.of_int to_); ("entries", Jv.get entries "entries") |]
+      (* Completions (List.map ~f:(fun raw_entry -> {
+        name = raw_entry.Query_protocol.Compl.name;
+        typ = raw_entry.Query_protocol.Compl.desc;
+        kind = ""
+      }) compl.entries) *)
   in
   Brr_webworkers.Worker.G.post res
 

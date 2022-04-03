@@ -2,7 +2,8 @@
  (name merlin_worker)
  (promote (until-clean))
  (modes js)
- ;(js_of_ocaml
+ ; (js_of_ocaml
+ ; (flags (:standard --target-env=browser)))
  ; (flags (:standard --source-map-inline)))
  (libraries
   static_files
