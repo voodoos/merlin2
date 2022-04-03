@@ -8,8 +8,11 @@
   <script type="text/javascript" defer src="index.js"></script>
   <title>Merlin the web</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Fira+Code&display=swap');
+
     body {
       background-color: #4c4956;
+      font-family: 'Fira Code', monospace
     }
 
     #editor {
@@ -23,20 +26,31 @@
       background-color: white;
     }
 
-    #editor .cm-editor {
+    .cm-editor {
       height: 100%;
     }
 
-    #editor .cm-tooltip {
+    .cm-tooltip,
+    .cm-completionMatchedText,
+    .cm-completionDetail {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.8rem;
+    }
+
+    .cm-editor .cm-tooltip {
       border-radius: 0.25rem;
       overflow: hidden;
     }
 
-    #editor .cm-tooltip-hover {
+    .cm-editor .cm-tooltip-hover {
       padding-left: 0.5rem;
       padding-right: 0.5rem;
       padding-top: 0.25rem;
       padding-bottom: 0.25rem;
+    }
+
+    .cm-editor .cm-content {
+      font-family: 'Fira Code', monospace;
     }
   </style>
 </head>
