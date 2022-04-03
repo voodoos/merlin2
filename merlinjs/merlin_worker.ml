@@ -145,6 +145,8 @@ let dump_config () =
 
 (* todo share that with worker *)
 type action = Completion | Type_enclosing
+[@@ocaml.warning "-37"]
+
 let on_message e =
   let (action, data, cursor_offset) as m = Brr_io.Message.Ev.data e in
   Console.(log ["Received message:"; m]);

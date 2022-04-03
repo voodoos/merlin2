@@ -18,7 +18,10 @@ preprocess:
 promote:
 	dune promote
 
-js:
-	dune build --watch --profile=release ./merlinjs/merlin_worker.bc.js ./merlinjs/client/merlin_client.bc.js
+node:
+	cd merlinjs && yarn
 
-.PHONY: all js build dev clean test promote
+js: node
+	dune build merlinjs/index.js --profile=release --watch
+
+.PHONY: all js node build dev clean test promote
