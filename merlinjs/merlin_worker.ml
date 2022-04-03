@@ -26,7 +26,7 @@ let dispatch source query  =
     |> Query_json.json_of_response query
     |> Json.to_string
 
-let _type_enclosing source position =
+let type_enclosing source position =
   let query = Query_protocol.Type_enclosing (None, position, None) in
   dispatch source query
 
@@ -142,24 +142,28 @@ let dump_config () =
     Mconfig.dump (Mpipeline.final_config pipeline)
     |> Json.pretty_to_string
 
+
+(* todo share that with worker *)
+type action = Completion | Type_enclosing
 let on_message e =
-  let (data, cursor_offset) = Brr_io.Message.Ev.data e in
-  Console.(log ["Received message:";data]);
+  let (action, data, cursor_offset) as m = Brr_io.Message.Ev.data e in
+  Console.(log ["Received message:"; m]);
   let source = Msource.make data in
   let position = `Offset cursor_offset in
   let res =
-    match Completion.at_pos source position with
-    | None ->
-      Jv.obj [| ("from", Jv.of_int 0); ("to", Jv.of_int 0); ("entries", Jv.Jarray.create 0) |]
-    | Some (from, to_, compl) ->
-      let entries = Brr.Json.decode @@ Jstr.of_string compl
-        |> Stdlib.Result.get_ok in
-      Jv.obj [| ("from", Jv.of_int from); ("to", Jv.of_int to_); ("entries", Jv.get entries "entries") |]
-      (* Completions (List.map ~f:(fun raw_entry -> {
-        name = raw_entry.Query_protocol.Compl.name;
-        typ = raw_entry.Query_protocol.Compl.desc;
-        kind = ""
-      }) compl.entries) *)
+    match action with
+    | Completion -> begin
+      match Completion.at_pos source position with
+      | None ->
+        Jv.obj [| ("from", Jv.of_int 0); ("to", Jv.of_int 0); ("entries", Jv.Jarray.create 0) |]
+      | Some (from, to_, compl) ->
+        let entries = Brr.Json.decode @@ Jstr.of_string compl
+          |> Stdlib.Result.get_ok in
+        Jv.obj [| ("from", Jv.of_int from); ("to", Jv.of_int to_); ("entries", Jv.get entries "entries") |] end
+    | Type_enclosing ->
+      let result_string = type_enclosing source position in
+      Brr.Json.decode @@ Jstr.of_string result_string
+          |> Stdlib.Result.get_ok
   in
   Brr_webworkers.Worker.G.post res
 

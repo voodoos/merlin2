@@ -1,9 +1,6 @@
 open Brr
 module Worker = Brr_webworkers.Worker
 
-
-let p_innerHTML = El.Prop.jstr (Jstr.of_string "innerHTML")
-
 (* When a query is sent to the Worker we keep the Future result in an indexed
 table so that the on_message function will be able to determine the Future when
 the answer is posted by the Worker.
@@ -29,35 +26,33 @@ let make_worker url =
     Worker.as_target worker.worker;
   worker
 
-let query worker source cursor_offset ((*todo: other queries*)) =
+(* todo share that with worker *)
+type action = Completion | Type_enclosing
+
+let query ~action worker source cursor_offset ((*todo: other queries*)) =
   let open Fut.Syntax in
   let fut, set  = Fut.create () in
   add_fut worker set;
-  Worker.post worker.worker (source, cursor_offset);
+  Worker.post worker.worker (action, source, cursor_offset);
   let+ data : Jv.t = fut in
   Console.(log ["Received:"; data]);
   (* El.(set_prop p_innerHTML (Jstr.of_string data) results_div); *)
   Ok data
 
-  let l : (string -> unit) -> string list -> unit = List.iter
-
-(* let on_input _e =
-  Console.(log [get_input_val ()]);
-  ignore (query worker ())
-
-let () = Ev.(listen keyup on_input @@ El.as_target text_input) *)
 let make_worker () = make_worker "merlin_worker.bc.js"
 let () = Jv.set Jv.global "make_worker" (Jv.repr make_worker)
 
-(* let res_to_jv = function
-  | Completions l -> Jv.of_list (fun {name; kind; typ} ->
-    Console.(log ["Name:"; name]);
-      Jv.obj [|("name", Jv.repr name);
-        ("kind", Jv.repr kind);
-        ("typ", Jv.repr typ)|]) l *)
-
-let query worker source cursor_offset =
+let query_completion worker source cursor_offset =
   let source = Jv.to_string source in
-  Fut.to_promise ~ok:Fun.id (query worker source cursor_offset ())
+  Fut.to_promise ~ok:Fun.id @@
+    query ~action:Completion worker source cursor_offset ()
 
-let () = Jv.set Jv.global "query_worker" (Jv.repr query)
+let query_type_enclosing worker source cursor_offset =
+  let source = Jv.to_string source in
+  Fut.to_promise ~ok:Fun.id @@
+    query ~action:Type_enclosing worker source cursor_offset ()
+
+let () = Jv.set Jv.global "query_worker_completion" @@
+  Jv.repr query_completion
+let () = Jv.set Jv.global "query_worker_type_enclosing" @@
+  Jv.repr query_type_enclosing
