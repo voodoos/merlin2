@@ -10,6 +10,6 @@
     "esbuild": "^0.14.29"
   },
   "scripts": {
-    "build": "yarn exec esbuild -- index.jsx --bundle --outfile=index.js"
+    "build": "./node_modules/esbuild/bin/esbuild index.jsx --bundle --outfile=index.js"
   }
 }
