@@ -12,6 +12,8 @@ let merlin_worker = make_worker()
 const pos_to_offset = (doc, pos) => doc.line(pos.line).from + pos.col
 
 /**
+ * Completion
+ *
  * @param {CompletionContext} context
  */
 function merlin_prefix_completion(context /*: CompletionContext */) {
@@ -32,6 +34,9 @@ function merlin_prefix_completion(context /*: CompletionContext */) {
   })
 }
 
+/**
+ * Type enclosing
+ */
 const type_on_hover = hoverTooltip((view, pos, side) => {
   let fulltext = view.state.doc.toJSON().join(view.state.lineBreak)
   console.log (query_worker_errors(merlin_worker, fulltext, pos))
@@ -54,6 +59,9 @@ const type_on_hover = hoverTooltip((view, pos, side) => {
   })
 })
 
+/**
+ * Errors
+ */
 const errors = linter(view => {
   let fulltext = view.state.doc.toJSON().join(view.state.lineBreak)
   let result =
@@ -69,6 +77,9 @@ const errors = linter(view => {
     }))
 })
 
+/**
+ * Syntax
+ */
 let ocaml = StreamLanguage.define(oCaml)
 
 let keywords = [
