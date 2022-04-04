@@ -9,6 +9,8 @@ import { oCaml } from "@codemirror/legacy-modes/mode/mllike"
 before-hand in the browser */
 let merlin_worker = make_worker()
 
+const pos_to_offset = (doc, pos) => doc.line(pos.line).from + pos.col
+
 /**
  * @param {CompletionContext} context
  */
@@ -37,9 +39,11 @@ const type_on_hover = hoverTooltip((view, pos, side) => {
     query_worker_type_enclosing(merlin_worker, fulltext, pos)
   return result.then(enclosings => {
     let first_enclosing = enclosings.at(0)
+    console.log("enclosing:", first_enclosing)
     let type = first_enclosing.type
     return {
-      pos,
+      pos: pos_to_offset(view.state.doc, first_enclosing.start),
+      end: pos_to_offset(view.state.doc, first_enclosing.end),
       above: true,
       create(view) {
         let dom = document.createElement("div")
@@ -56,8 +60,8 @@ const errors = linter(view => {
     query_worker_errors(merlin_worker, fulltext, 0)
   return result.then(result => result.map(error => {
       return {
-        from: view.state.doc.line(error.start.line).from + error.start.col,
-        to: view.state.doc.line(error.end.line).from + error.end.col,
+        from: pos_to_offset(view.state.doc, error.start),
+        to: pos_to_offset(view.state.doc, error.end),
         message: error.message,
         severity: "error",
         source: error.type
